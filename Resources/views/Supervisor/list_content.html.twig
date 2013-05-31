@@ -1,0 +1,86 @@
+<h1>Supervisor<hr /></h1>
+<div class="row">
+    <div class="span12">
+        <ul class="nav nav-tabs">
+            {% for supervisor in supervisors %}
+                <li class="{{ loop.index == 1 ? 'active' : '' }}">
+                    <a href="#{{ supervisor.name }}">
+                        <span class="badge badge-{% if supervisor.checkConnection == true %}success{% else %}important{% endif %}">{% if supervisor.checkConnection == true %}up{% else %}down{% endif %}</span>
+                        {% if supervisor.checkConnection == true %}{{ supervisor.getIdentification }}{% else %}{{ supervisor.name }}{% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for supervisor in supervisors %}
+                <div class="tab-pane{{ loop.index == 1 ? ' active' : '' }}" id="{{ supervisor.name }}">
+                {% if supervisor.checkConnection == true %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Process</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for process in supervisor.processes %}
+                            {% set processInfos = process.processInfo %}
+                            <tr class="{% if processInfos.state == 10 or  processInfos.state == 20 %}success{% else %}error{% endif %}">
+                                <td class="span2">
+                                    <span class="badge badge-{% if processInfos.state == 10 or processInfos.state == 20 %}success{% else %}important{% endif %}">{{ processInfos.statename }}</span>
+                                </td>
+                                <td class="span6">
+                                    <strong>{{ processInfos.name }}</strong><br />
+                                    {{ processInfos.description }}
+                                </td>
+                                <td class="span4">
+                                    <div class="btn-group">
+                                        {% if processInfos.state == 10 or  processInfos.state == 20 %}
+                                            <a href="{{ path('supervisor.process.startStop', { 'key':supervisor.key, 'name':process.name, 'group':process.group, 'start': 0 }) }}" class="btn btn-danger">Stop</a>
+                                        {% else %}
+                                            <a href="{{ path('supervisor.process.startStop', { 'key':supervisor.key, 'name':process.name, 'group':process.group, 'start': 1 }) }}" class="btn btn-success">Start</a>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <a href="{{ path('supervisor.process.info', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe btn">{{ "Informations"|trans }}</a>
+                                        <button data-toggle="dropdown" class="btn dropdown-toggle"><span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="{{ path('supervisor.process.log', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe">{{ "Lire stdout"|trans }}</a></li>
+                                            <li><a href="{{ path('supervisor.process.error', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe">{{ "Lire stderr"|trans }}</a></li>
+                                            <li class="divider"></li>
+                                            <li><a href="{{ path('supervisor.process.log.clear', { 'key': supervisor.key, 'name': process.name, 'group': process.group }) }}">{{ "Supprimer les logs"|trans }}</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">
+                                    <p>Version <code>{{ supervisor.getSupervisorVersion }}</code></p>
+                                    <p>Api <code>{{ supervisor.getAPIVersion }}</code></p>
+                                </th>
+                                <th>
+                                    <div class="">
+                                        {#<div class="btn-group mr10">
+                                            <a href="{{ path('yz_supervisor_start_stop_all_processes', { 'key':supervisor.key, 'start': 1 }) }}" class="btn btn-mini btn-success">{{ "Lancer tous les processus"|trans }}</a>
+                                            <a href="{{ path('yz_supervisor_start_stop_all_processes', { 'key':supervisor.key, 'start': 0 }) }}" class="btn btn-mini btn-danger">{{ "Arreter tous les processus"|trans }}</a>
+                                        </div>#}
+                                        <div class="btn-group">
+                                            <a href="{{ path('supervisor.log', { 'key':supervisor.key }) }}" class="fancybox_preview fancybox.iframe btn-mini btn">{{ "Lire les logs"|trans }}</a>
+                                            <a href="{{ path('supervisor.log.clear', { 'key':supervisor.key }) }}" class="btn-mini btn">{{ "Supprimer les logs"|trans }}</a>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

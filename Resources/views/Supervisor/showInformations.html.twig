@@ -1,0 +1,9 @@
+{% if informations %}
+    <div>
+    {% for key, information in informations %}
+        <div> {{ key }} : {{ information }} </div>
+    {% endfor %}
+    </div>
+{% else %}
+    {{ "No informations"|trans }}
+{% endif %}

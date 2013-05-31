@@ -1,0 +1,30 @@
+{
+    "name": "yzalis/supervisor-bundle",
+    "type": "symfony-bundle",
+    "description": "Manage your supervisor instance in your Symfony2 application.",
+    "keywords": ["supervisor", "supervisord", "supervisorctl", "rpc", "api"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Laugueux",
+            "email": "benjamin@yzalis.com"
+        },
+        {
+            "name": "Symfony Community",
+            "homepage": "https://github.com/yzalis/SupervisorBundle/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "yzalis/supervisor": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "YZ\\SupervisorBundle": "" }
+    },
+    "target-dir": "YZ/SupervisorBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
