@@ -10,7 +10,7 @@
             "email": "benjamin@yzalis.com"
         },
         {
-            "name": "Symfony Community",
+            "name": "All contributors",
             "homepage": "https://github.com/yzalis/SupervisorBundle/contributors"
         }
     ],
@@ -24,7 +24,7 @@
     "target-dir": "YZ/SupervisorBundle",
     "extra": {
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     }
 }

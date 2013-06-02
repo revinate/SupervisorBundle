@@ -10,11 +10,13 @@ This is the official bundle of the [Supervisor PHP library](https://github.com/y
 
 Add YZSupervisorBundle in your `composer.json`:
 
+``` json
     {
         "require": {
-            "yzalis/supervisor-bundle": "v1.0@dev"
+            "yzalis/supervisor-bundle": "1.0.*@dev"
         }
     }
+```
 
 Now tell composer to download the bundle by running the command:
 
@@ -24,21 +26,21 @@ Now tell composer to download the bundle by running the command:
 
 Enable the bundle in the kernel:
 
-    <?php
-
-    // app/AppKernel.php
+``` php
+    # app/AppKernel.php
     public function registerBundles()
     {
         $bundles = array(
             // ...
-            new YZ\Bundle\SupervisorBundle\SensioLabsConnectBundle(),
+            new YZ\Bundle\SupervisorBundle\YZSupervisorBundle(),
             // ...
         );
     }
+```
 
 ### Step 3: Configure your `config.yml` file
 
-```
+``` php 
 # app/config/config.yml
 yz_supervisor:
     default_environment: dev
@@ -62,11 +64,32 @@ yz_supervisor:
                 port: 9001
 ```
 
+# Usage
+
+Iterate over all supervisor instances:
+``` php
+$supervisorManager = $this->container->get('supervisor.manager');
+
+foreach ($supervisorManager->getSupervisors() as $supervisor) {
+    echo $supervisor->getKey();
+    // ...
+}
+```
+
+Retrieve a specific supervisor instance:
+```
+$supervisorManager = $this->container->get('supervisor.manager');
+
+$supervisor = $supervisorManager->getSupervisorByKey('uniqueKey');
+
+echo $supervisor->getKey();
+```
+
+
 # Unit Tests
 
-To run unit tests, you'll need cURL and a set of dependencies you can install using Composer:
+To run unit tests, you'll need a set of dependencies you can install using Composer:
 ```
-curl -sS https://getcomposer.org/installer | php
 php composer.phar install
 ```
 
