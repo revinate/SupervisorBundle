@@ -66,7 +66,7 @@ yz_supervisor:
 
 # Usage
 
-Iterate over all supervisor instances:
+Iterate over all supervisor servers:
 ``` php
 $supervisorManager = $this->container->get('supervisor.manager');
 
@@ -76,7 +76,7 @@ foreach ($supervisorManager->getSupervisors() as $supervisor) {
 }
 ```
 
-Retrieve a specific supervisor instance:
+Retrieve a specific supervisor servers:
 ```
 $supervisorManager = $this->container->get('supervisor.manager');
 
@@ -85,6 +85,21 @@ $supervisor = $supervisorManager->getSupervisorByKey('uniqueKey');
 echo $supervisor->getKey();
 ```
 
+# User interface
+
+You can access to a beautiful user interface to monitor all your supervisor servers an process.
+
+Import the routing definition in `routing.yml`:
+``` yaml
+# app/config/routing.yml
+YZSupervisorBundle:
+    resource: "@YZSupervisorBundle/Resources/config/routing.xml"
+    prefix: /supervisor
+```
+
+Here is the result
+
+![Supervisor Bundle screenshot](https://github.com/yzalis/SupervisorBundle/raw/master/Resources/doc/SupervisorBundle-1.png)
 
 # Unit Tests
 
