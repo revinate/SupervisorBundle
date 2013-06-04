@@ -11,11 +11,11 @@ This is the official bundle of the [Supervisor PHP library](https://github.com/y
 Add YZSupervisorBundle in your `composer.json`:
 
 ``` json
-    {
-        "require": {
-            "yzalis/supervisor-bundle": "1.0.*@dev"
-        }
+{
+    "require": {
+        "yzalis/supervisor-bundle": "1.0.*@dev"
     }
+}
 ```
 
 Now tell composer to download the bundle by running the command:
@@ -27,15 +27,15 @@ Now tell composer to download the bundle by running the command:
 Enable the bundle in the kernel:
 
 ``` php
-    # app/AppKernel.php
-    public function registerBundles()
-    {
-        $bundles = array(
-            // ...
-            new YZ\Bundle\SupervisorBundle\YZSupervisorBundle(),
-            // ...
-        );
-    }
+# app/AppKernel.php
+public function registerBundles()
+{
+    $bundles = array(
+        // ...
+        new YZ\Bundle\SupervisorBundle\YZSupervisorBundle(),
+        // ...
+    );
+}
 ```
 
 ### Step 3: Configure your `config.yml` file
