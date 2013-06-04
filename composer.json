@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "yzalis/supervisor": "dev-master"
+        "yzalis/supervisor": ">=1.0.0"
     },
     "autoload": {
         "psr-0": { "YZ\\SupervisorBundle": "" }
