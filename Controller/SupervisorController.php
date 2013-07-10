@@ -33,14 +33,12 @@ class SupervisorController extends Controller
      */
     public function startStopProcessAction($start, $key, $name, $group)
     {
-        $supervisorManager = $this->get('supervisor.manager');
-        $supervisor = $supervisorManager->getSupervisorByKey($key);
-        $process = $supervisor->getProcessByNameAndGroup($name, $group);
-
+        $supervisor = $this->get('supervisor.manager')->getSupervisorByKey($key);
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
 
+        $process = $supervisor->getProcessByNameAndGroup($name, $group);
         if ($start == "1") {
             if ($process->startProcess() != true) {
                 $this->get('session')->getFlashBag()->add('error', 'Erreur lors du lancement du processus.');
@@ -62,9 +60,7 @@ class SupervisorController extends Controller
      */
     public function startStopAllProcessesAction($start, $key)
     {
-        $supervisorManager = $this->get('supervisor.manager');
-        $supervisor = $supervisorManager->getSupervisorByKey($key);
-
+        $supervisor = $this->get('supervisor.manager')->getSupervisorByKey($key);
         if (!$supervisor) {
             throw new \Exception('Supervisor not found');
         }
