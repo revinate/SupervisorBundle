@@ -1,5 +1,7 @@
 # SupervisorBundle [![Build Status](https://secure.travis-ci.org/yzalis/SupervisorBundle.png)](http://travis-ci.org/yzalis/SupervisorBundle)
 
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/1e931f6c-2098-41a8-8f6d-8570f125a1e8/small.png)](https://insight.sensiolabs.com/projects/1e931f6c-2098-41a8-8f6d-8570f125a1e8)
+
 ## About
 
 This is the official bundle of the [Supervisor PHP library](https://github.com/yzalis/Supervisor).
