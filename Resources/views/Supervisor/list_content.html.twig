@@ -7,7 +7,7 @@
             {% for supervisor in supervisors %}
                 <li class="{{ loop.index == 1 ? 'active' : '' }}">
                     <a href="#{{ supervisor.name }}">
-                        <span class="label label-{% if supervisor.checkConnection == true %}success{% else %}important{% endif %}">{% if supervisor.checkConnection == true %}UP{% else %}DOWN{% endif %}</span>
+                        <span class="label label-{% if supervisor.checkConnection == true %}success{% else %}warning{% endif %}">{% if supervisor.checkConnection == true %}UP{% else %}DOWN{% endif %}</span>
                         {% if supervisor.checkConnection == true %}{{ supervisor.getIdentification }}{% else %}{{ supervisor.name }}{% endif %}
                     </a>
                 </li>
