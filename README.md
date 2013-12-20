@@ -34,7 +34,7 @@ public function registerBundles()
 {
     $bundles = array(
         // ...
-        new YZ\Bundle\SupervisorBundle\YZSupervisorBundle(),
+        new YZ\SupervisorBundle\YZSupervisorBundle(),
         // ...
     );
 }
