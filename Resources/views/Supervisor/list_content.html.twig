@@ -28,7 +28,7 @@
                         <tbody>
                         {% for process in supervisor.processes %}
                             {% set processInfos = process.processInfo %}
-                            <tr class="{% if processInfos.state == 10 or  processInfos.state == 20 %}success{% else %}error{% endif %}">
+                            <tr class="{% if processInfos.state == 10 or  processInfos.state == 20 %}success{% else %}danger{% endif %}">
                                 <td class="col-lg-2">
                                     <span class="label label-{% if processInfos.state == 10 or processInfos.state == 20 %}success{% else %}danger{% endif %}">{{ processInfos.statename }}</span>
                                 </td>
