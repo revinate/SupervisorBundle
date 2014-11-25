@@ -2,8 +2,9 @@
     <h1>Supervisor</h1>
 </div>
 <div class="row">
-    <div class="col-lg-12">
-        <ul class="nav nav-tabs">
+    <div class="col-lg-12" role="tabpanel">
+        <button autocomplete="off" type="button" class="btn-small btn-default btn pull-right" id="refresh-all-process" data-loading-text="{{ "Actualisation en cours"|trans }}" data-text="{{ "Actualiser"|trans }}">{{ "Actualiser"|trans }}</button>
+        <ul class="nav nav-tabs" role="tablist" id="supervisor-instances">
             {% for supervisor in supervisors %}
                 <li class="{{ loop.index == 1 ? 'active' : '' }}">
                     <a href="#{{ supervisor.name }}">
@@ -15,7 +16,7 @@
         </ul>
         <div class="tab-content">
             {% for supervisor in supervisors %}
-                <div class="tab-pane{{ loop.index == 1 ? ' active' : '' }}" id="{{ supervisor.name }}">
+                <div class="tab-pane{{ loop.index == 1 ? ' active' : '' }} supervisor" id="{{ supervisor.name }}" role="tabpanel" data-supervisor="{{ supervisor.key }}" data-refresh-url="{{ path('supervisor.processes.info', { 'key':supervisor.key }) }}">
                 {% if supervisor.checkConnection == true %}
                     <table class="table table-striped table-hover table-align-middle">
                         <thead>
@@ -28,16 +29,16 @@
                         <tbody>
                         {% for process in supervisor.processes %}
                             {% set processInfos = process.processInfo %}
-                            <tr class="{% if processInfos.state == 10 or  processInfos.state == 20 %}success{% else %}danger{% endif %}">
+                            <tr class="{% if processInfos.state == 10 or  processInfos.state == 20 %}success{% else %}danger{% endif %} process" data-name="{{ process.name }}" data-group="{{ process.group }}" data-started="{% if processInfos.state == 10 or  processInfos.state == 20 %}true{% else %}false{% endif %}">
                                 <td class="col-lg-2">
-                                    <span class="label label-{% if processInfos.state == 10 or processInfos.state == 20 %}success{% else %}danger{% endif %}">{{ processInfos.statename }}</span>
+                                    <span class="label label-{% if processInfos.state == 10 or processInfos.state == 20 %}success{% else %}danger{% endif %} process-statename">{{ processInfos.statename }}</span>
                                 </td>
                                 <td class="col-lg-6">
-                                    <strong>{{ processInfos.name }}</strong><br />
-                                    {{ processInfos.description }}
+                                    <strong class="process-name">{{ processInfos.name }}</strong><br />
+                                    <span class="process-description">{{ processInfos.description }}</span>
                                 </td>
                                 <td class="col-lg-4 align-right">
-                                    <div class="btn-group">
+                                    <div class="btn-group process-control">
                                         {% if processInfos.state == 10 or  processInfos.state == 20 %}
                                             <a href="{{ path('supervisor.process.startStop', { 'key':supervisor.key, 'name':process.name, 'group':process.group, 'start': 0 }) }}" class="btn btn-danger btn-small">Stop</a>
                                         {% else %}
@@ -46,7 +47,7 @@
                                     </div>
 
                                     <div class="btn-group">
-                                        <a href="{{ path('supervisor.process.info', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe btn btn-default btn-small">{{ "Informations"|trans }}</a>
+                                        <a href="{{ path('supervisor.process.info', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe btn btn-default btn-small process-info">{{ "Informations"|trans }}</a>
                                         <button data-toggle="dropdown" class="btn btn-default btn-small dropdown-toggle"><span class="caret"></span></button>
                                         <ul class="dropdown-menu align-left">
                                             <li><a href="{{ path('supervisor.process.log', { 'key':supervisor.key, 'name':process.name, 'group':process.group }) }}" class="fancybox_preview fancybox.iframe">{{ "Lire stdout"|trans }}</a></li>
@@ -84,3 +85,90 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(function() {
+        // update processes states on tab change
+        $('#supervisor-instances > li > a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+            updateAll();
+        });
+
+        // use ajax to start/stop process. wait 1,2 sec then refresh row
+        $('.process-control > a').click(function (e){
+            e.preventDefault();
+            var $this = $(this);
+            var process = $(this).parents('.process');
+
+            if (process.data('control') === false || $this.hasClass('disabled')) {
+                console.log('Action canceled');
+                return;
+            }
+            var started = process.data('started');
+
+
+            process.data('control', false).removeClass('success danger').addClass('warning');
+            $('.process-statename', process).text(started ? 'STOPPING...' : 'STARTING...').removeClass('label-success label-danger').addClass('label-warning');
+            $this.addClass('disabled');
+
+            $.get($this.attr('href'), function (r) {
+                if (!r.success) {
+                    $this.tooltip({
+                        title: r.message,
+                        trigger: 'manual',
+                        container: 'body',
+                        placement: 'left'
+                    }).tooltip('show');
+                    setTimeout(function () {
+                        $this.tooltip('hide');
+                    }, 2000);
+                }              
+                setTimeout(function() {
+                    update(process);
+                }, 1200);
+            });
+        });
+
+        // refresh all rows
+        $('#refresh-all-process').click(function (e) {
+            e.preventDefault();
+            updateAll();
+        });
+
+        // fetch update for all processes
+        function updateAll() {
+            var refreshBtn = $('#refresh-all-process');
+            refreshBtn.attr('disabled', true).text(refreshBtn.data('loading-text'));
+            var url = $('.supervisor.active').data('refresh-url');
+
+            $.get(url, function (r) {
+                for(var name in r) {
+                    var el = $('.supervisor[data-supervisor="'+r[name].supervisor+'"] .process[data-name="'+name+'"]');
+                    if (el.length == 1) {
+                        display(el, r[name]);
+                    } else {
+                        console.log("Cannot update '" + name + "': row not found");
+                    }
+                }
+
+                refreshBtn.attr('disabled', false).text(refreshBtn.data('text'));
+            });
+        }
+
+        // update one specific process
+        function update(process) {
+            $.get($('.process-info', process).attr('href'), function (r) {
+                display(process, r);
+            });
+        }
+
+        // update display and data
+        function display(process, response) {
+            var started = response.processInfo.state == 10 || response.processInfo.state == 20;
+            $('.process-statename', process).text(response.processInfo.statename).removeClass('label-success label-danger label-warning').addClass(started ? 'label-success' : 'label-danger');
+            $('.process-control a', process).text(started ? 'Stop' : 'Start').removeClass('btn-success btn-danger disabled').addClass(started ? 'btn-danger' : 'btn-success').attr('href', response.controlLink);
+            $('.process-description', process).text(response.processInfo.description);
+            process.data('control', true).data('started', started).removeClass('success danger warning').addClass(started ? 'success' : 'danger');
+        }
+    });
+</script>

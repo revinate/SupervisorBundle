@@ -3,12 +3,14 @@
 namespace YZ\SupervisorBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * SupervisorController
  */
 class SupervisorController extends Controller
 {
+    private static $publicInformations = ['description', 'group', 'name', 'state', 'statename'];
     /**
      * indexAction
      */
@@ -38,15 +40,38 @@ class SupervisorController extends Controller
             throw new \Exception('Supervisor not found');
         }
 
+        $success = true;
         $process = $supervisor->getProcessByNameAndGroup($name, $group);
-        if ($start == "1") {
-            if ($process->startProcess() != true) {
-                $this->get('session')->getFlashBag()->add('error', 'Erreur lors du lancement du processus.');
+        try {
+            if ($start == "1") {
+                $success = $process->startProcess();
+            } elseif ($start == "0") {
+                $success = $process->stopProcess();
+            } else {
+                $success = false;
             }
-        } elseif ($start == "0") {
-            if ($process->stopProcess() != true) {
-                $this->get('session')->getFlashBag()->add('error', 'Erreur lors de l\'arret du processus.');
-            }
+
+        } catch (\Exception $e) {
+            $success = false;
+            $this->get('session')->getFlashBag()->add('error', 'Erreur lors de l\'arret du processus.');
+        }
+
+        if (!$success) {
+            $this->get('session')->getFlashBag()->add('error', 'Erreur lors '.($start == "1" ? 'du lancement' : 'de l\'arret').' du processus.');
+        }
+
+        if ($this->getRequest()->isXmlHttpRequest()) {
+            $processInfo = $process->getProcessInfo();
+            $res = json_encode([
+                'success'       => $success,
+                'message'       => implode(', ', $this->get('session')->getFlashBag()->get('error', array())),
+                'processInfo'   => $processInfo
+            ]);
+
+            return new Response($res, 200, [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-store',
+            ]);
         }
 
         return $this->redirect($this->generateUrl('supervisor'));
@@ -215,8 +240,80 @@ class SupervisorController extends Controller
 
         $infos = $process->getProcessInfo();
 
+        if ($this->getRequest()->isXmlHttpRequest()) { 
+            $processInfo = [];
+            foreach (self::$publicInformations as $public) {
+                $processInfo[$public] = $infos[$public];
+            }
+
+            $res = json_encode([
+                'supervisor'    => $key,
+                'processInfo'   => $processInfo,
+                'controlLink'   => $this->generateUrl('supervisor.process.startStop', [
+                    'key'   => $key, 
+                    'name'  => $name, 
+                    'group' => $group, 
+                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1')
+                ])
+            ]);
+
+            return new Response($res, 200, [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-store',
+            ]);
+        }
+
         return $this->render('YZSupervisorBundle:Supervisor:showInformations.html.twig', array(
             'informations' => $infos,
         ));
+    }
+
+    /**
+     * showProcessAllInfoAction
+     *
+     * @param string $key   The key to retrieve a Supervisor object
+     *
+     * @return Symfony\Component\HttpFoundation\Response represents an HTTP response.
+     */
+    public function showProcessInfoAllAction($key)
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) { 
+            throw new \Exception('Ajax request expected here');
+        }
+
+        $supervisorManager = $this->get('supervisor.manager');
+        $supervisor = $supervisorManager->getSupervisorByKey($key);
+
+        if (!$supervisor) {
+            throw new \Exception('Supervisor not found');
+        }
+
+        $processes = $supervisor->getProcesses();
+        $processesInfo = [];
+        foreach ($processes as $process) {
+            $infos = $process->getProcessInfo();
+            $processInfo = [];
+            foreach (self::$publicInformations as $public) {
+                $processInfo[$public] = $infos[$public];
+            }
+
+            $processesInfo[$infos['name']] = [
+                'supervisor'    => $key,
+                'processInfo'   => $processInfo,
+                'controlLink'   => $this->generateUrl('supervisor.process.startStop', [
+                    'key'   => $key, 
+                    'name'  => $infos['name'], 
+                    'group' => $infos['group'], 
+                    'start' => ($infos['state'] == 10 || $infos['state'] == 20 ? '0' : '1')
+                ])
+            ];
+        }
+      
+        $res = json_encode($processesInfo);
+
+        return new Response($res, 200, [
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 }
