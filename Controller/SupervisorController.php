@@ -91,11 +91,11 @@ class SupervisorController extends Controller
         }
 
         if ($start == "1") {
-            if ($supervisor->startAllProcesses() != true) {
+            if ($supervisor->startAllProcesses() !== true) {
                 $this->get('session')->getFlashBag()->add('error', 'Erreur lors du lancement de tous processus.');
             }
         } elseif ($start == "0") {
-            if ($supervisor->stopAllProcesses() != true) {
+            if ($supervisor->stopAllProcesses() !== true) {
                 $this->get('session')->getFlashBag()->add('error', 'Erreur lors de l\'arret de tous les processus.');
             }
         }
@@ -138,7 +138,7 @@ class SupervisorController extends Controller
             throw new \Exception('Supervisor not found');
         }
 
-        if ($supervisor->clearLog() != true) {
+        if ($supervisor->clearLog() !== true) {
             $this->get('session')->getFlashBag()->add('error', 'Erreur lors de la suppression des logs.');
         }
 
@@ -212,7 +212,7 @@ class SupervisorController extends Controller
             throw new \Exception('Supervisor not found');
         }
 
-        if ($process->clearProcessLogs() != true) {
+        if ($process->clearProcessLogs() !== true) {
             $this->get('session')->getFlashBag()->add('error', 'Erreur lors de la suppression des logs.');
         }
 
