@@ -7,7 +7,7 @@
         <ul class="nav nav-tabs" role="tablist" id="supervisor-instances">
             {% for supervisor in supervisors %}
                 <li class="{{ loop.index == 1 ? 'active' : '' }}">
-                    <a href="#{{ supervisor.name }}">
+                    <a href="#{{ supervisor.name }}" data-toggle="tab">
                         <span class="label label-{% if supervisor.checkConnection == true %}success{% else %}danger{% endif %}">{% if supervisor.checkConnection == true %}UP{% else %}DOWN{% endif %}</span>
                         {% if supervisor.checkConnection == true %}{{ supervisor.getIdentification }}{% else %}{{ supervisor.name }}{% endif %}
                     </a>
