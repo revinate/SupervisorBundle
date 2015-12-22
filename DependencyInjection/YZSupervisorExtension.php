@@ -17,7 +17,11 @@ class YZSupervisorExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('supervisor.servers', $config['servers'][$config['default_environment']]);
+        $supervisorServers = null;
+        if (isset($config['default_environment']) && isset($config['servers'][$config['default_environment']])) {
+            $supervisorServers = $config['servers'][$config['default_environment']];
+        }
+        $container->setParameter('supervisor.servers', $supervisorServers);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
